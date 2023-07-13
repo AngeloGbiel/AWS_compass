@@ -1,5 +1,6 @@
 #!bin/bash
 
+#Variáveis
 DIR="/home/ec2-user/efs/angelo"
 STATUS=$(systemctl is-active httpd.service)
 NAME=$(systemctl status httpd | head -n 1 | awk '{print $2}')
@@ -37,7 +38,7 @@ else
     fi
 fi
 
-# Faz o log estando inativo ou ativo
+# Log de maior controle e mais resumido
 if [[ -f "$DIR/log_file.txt" ]]; then
         echo "$NAME - $DATE - $DAY - $HOURS - $STATUS" >> "$DIR/log_file.txt"
 else
