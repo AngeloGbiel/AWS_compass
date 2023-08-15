@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  wordpress:
+    image: wordpress:latest
+    volumes:
+      - ./config/php.conf.uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./wp-app:/var/www/html
+    ports:
+      - 80:80
+    restart: always
+    # volumes:
+    #   - ./wordpress:/var/www/html
