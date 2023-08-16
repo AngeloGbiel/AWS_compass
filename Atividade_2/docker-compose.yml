@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.8"
 services:
   wordpress:
     image: wordpress:latest
@@ -8,5 +8,8 @@ services:
     ports:
       - 80:80
     restart: always
-    # volumes:
-    #   - ./wordpress:/var/www/html
+    environment:
+      - WORDPRESS_DB_HOST=endpoint
+      - WORDPRESS_DB_USER=root
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
