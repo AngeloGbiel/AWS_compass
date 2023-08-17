@@ -134,7 +134,7 @@ services:
 ```
 Esse código irá baixar a imagem **wordpress**, anexar o volume efs como diretório estático dentro do container wordpress, e definir a porta 80 para expor a nossa aplicação
 
-As variaveis de ambiente (environment) permitirão que o wordpress acesse o banco de dados, e para isso, a única coisa que preciamos mudar quando formor configurar esse código, é o **WORDPRESS_DB_HOST**, onde colocaremos o endpoint do RDS criado anteriormente
+As variaveis de ambiente (environment) permitirão que o wordpress acesse o banco de dados, e para isso, a única coisa que preciamos mudar quando formos configurar esse código, é o **WORDPRESS_DB_HOST**, onde colocaremos o endpoint do RDS criado anteriormente
 
 Após a instalação, antes de acessarmos via navegador, podemos ir no dbeaver-ce, selecionar **tabelas**, e veremos que agora, há várias tabelas que o wordpress criou dentro do banco de dados MySql
 
@@ -160,3 +160,22 @@ Após isso, na seção **instâncias**, vamos em _modelo de execução_ e criar 
   - **Chave:** Project | **Valor:** PB IFMT - UTFPR | **Tipos de recursos:** anexar instâncias e Volumes
   - **Chave:** CostCenter | **Valor:** C092000004 | **Tipos de recursos:** anexar instâncias e Volumes
 - Após isso, vamos criar nosso modelo de execução
+
+## Criando um Load Balancer
+
+Antes de criarmos um Auto scaling, vamos configurar o nosso Load Balancer para prover o balanceamento de carga entre as instâncias
+Para isso, primeiro vamos criar o Target Group:
+- Na seção **Balanceamento de carga** vamos selecionar a opção **Grupos de destinos** e depois Criar Grupos de destinos.
+- Vamos selecioar "instâncias", criar um nome para o nosso target group (TG-001), o protocolo http na porta 80 deixaremos como padrão, vamos selecionar a vpc criada anteriormente para essa atividade, e então clicaremos em "Proximo"
+- **[IMPORTANTE]**: nesse primeiro momento, não vamos selecionar nenhuma instância como dependência do target group, vamos apenas criá-lo
+
+Uma vez criado o Target group, vamos criar o nosso Load Balancer:
+- Ainda na seção **Balanceamento de carga** vamos selecionar a opção **Load Balancers** e depois Criar load balancer.
+- Vamos selecionar o Application Load Balancer (aplicações com tráfego HTTP e HTTPS)
+- Vamos atribuir um nome para o nosso Load Balancer (ALB-001).
+- Deixaremos ele voltado para a internet, e apenas com IPv4 configurado.
+- Em mapeamento de rede, vamos selecionar nossa VPC criada anteriormente e selecionar as zonas de disponibilidade que configuramos dentro da VPC (que nesse caso, são duas).
+  - **[IMPORTANTE]:** após selecionar as zonas de disponibilidade, vamos selecionar as sub-redes **públicas** de cada AZ, caso o contrário nossa aplicação não irá funcionar da maneira esperada
+- Vamos selecionar o Grupo de Segurança que criamos anteriormente (Docker_wordpress).
+- em Listeners e roteamento vamos selecionar o Target group que criamos anteriormente (TG-001), e deixaremos a porta padrão (http - 80)
+- Após isso, poderemos criar o nosso Load Balancer
