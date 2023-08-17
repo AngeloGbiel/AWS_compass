@@ -26,14 +26,13 @@ Basicamente, esse arquivo vai instalar o docker e o docker-compose (últimas ver
 Antes de executar uma instância, precisamos criar e configurar uma VPC, onde nela teremos:
 - 2 subnet pública 
 - 2 subnets privadas
-- Nat gateway configurado na subnet pública (para esse exemplo, vamos utilizar a **us-east-1a**)
+
 
 Para criar um nova VPC, vamos:
 - Ir nos serviços de VPC dentro da AWS
 - Ir em _Suas vpcs_ e depois em Criar VPC_
 - Selecionar a opção **VPC e muito mais**
 - Vamos deixar tudo padrão (2 AZs, 2 subnets públicas e 2 subnets privadas)
-- Vamos habilitar o Gateways NAT em apenas uma AZ (que nesse caso será na **us-east-1a**)
 - Depois vamos em _Criar VPC_
 
 ## Criando um Security group na VPC criada
@@ -51,7 +50,6 @@ Vamos na seção **Rede e segurança** dentro dos serviços de EC2 e selecionar 
   - **Tipo:** NFS | **porta:** 22 | **Origem:** sg-(security Group Docker_wordpress) 
 
 A configuração do Security group irá permitir o acesso SSH apenas para o nosso ip (podemos configurar outra liberação caso haja a necessidade de um Bastion host), o acesso http e https para qualquer IPv4 (isso é necessário para a configuração do Load Balancer posteriormente), o acesso do MySql apenas para o banco de dados que tiver o security group em específico anexado (nesse caso, vamos configurar o security group que criaremos quando formos configurar o RDS), e o NFS apenas para os recursos que compartilham o mesmo Security group, nesse caso: a Instância e o EFS (mais seguro).
-
 
 ## Criando um banco de dados RDS
 
@@ -205,3 +203,27 @@ Para isso, vamos:
 - Podemos adcionar uma notificação pelo SNS e criar etiquetas, porém vamos pular essas etapas também e criar o Auto Scaling
 
 Após criado, duas instâncias serão criadas, ambas em uma sub-rede privada. Após a criação, o Target Group irá verificar se as instâncias estão rodando conforme o esperado. Caso esteja, os status das instâncias serão healthy e o Load balancer estará pronto para ser usado.
+
+## Configuração do Wordpress
+
+Para acessarmos nossa aplicação, vamos no Load Balancer que criamos, e copiar o **Nome de DNS Completo**, e então abrir no navegador. Uma vez acessado, teremos a tela de idiomas, no qual escolheremos _inglês_. 
+
+Ao prosseguir, seremos incaminhado para a tela de boas vindas, na qual precisamos efetuar a instalação do wordpress. Para isso, colocaremos "wordpress" em todos os campos disponíveis (porém isso não é obrigatório) e então deremos continuidade a instalação.
+
+<img src="./images/wordpress.png"/>
+
+Após a instalação, teremos uma tela de sucesso, nos permitindo realizar o login dentro da aplicação do wordpress:
+
+<img src="./images/login.png"/>
+
+Após efetuar o login, teremos acesso a nossa aplicação wordpress como admin:
+
+<img src="./images/wordpressUrl.png"/>
+
+## Visualizando mudanças no Dbeaver-ce
+
+Após a instalação do Wordpress, podemos visualizar as tabelas criadas dentro do banco de dados do RDS através do Dbeaver-ce ou outro programa de sua preferência
+
+<img src="./images/bancoDeDados.png"/>
+
+Lembrando que, para visualiza-lá, precisamos tornar o banco de dados público, porém por questões de segurança, é recomendado a reavaliar se há a necessidade de um banco de dados público. Nessa atividade foi criada apenas para melhor visualização, além de apresentar uma ferramenta de gerenciamento de banco de dados.
