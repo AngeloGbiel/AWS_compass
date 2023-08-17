@@ -44,13 +44,14 @@ Vamos na seção **Rede e segurança** dentro dos serviços de EC2 e selecionar 
 - Vamos criar um novo security group
 - Vamos Atribuir o nome **Docker_wordpress**, uma descrição, e selecionar a VPC criada.
 - Em regras de entrada, vamos criar as seguintes permissões:
-  - **Tipo:** SSH | **porta:** 22 | **Origem:** Qualquer IPv4 (0.0.0.0/0)
-  - **Tipo:** http | **porta:** 80 | **Origem:** Meu IP
-  - **Tipo:** https | **porta:** 443 | **Origem:** Meu IP
-  - **Tipo:** MYSQL/Aurora | **porta:** 3306 | **Origem:** Qualquer IPv4 (0.0.0.0/0)
+  - **Tipo:** SSH | **porta:** 22 | **Origem:** Meu Ip
+  - **Tipo:** http | **porta:** 80 | **Origem:** Qualquer IPv4 (0.0.0.0/0)
+  - **Tipo:** https | **porta:** 443 | **Origem:** Qualquer IPv4 (0.0.0.0/0)
+  - **Tipo:** MYSQL/Aurora | **porta:** 3306 | **Origem:** sg-(Security Group do RDS)
   - **Tipo:** NFS | **porta:** 22 | **Origem:** sg-(security Group Docker_wordpress) 
 
-Como estamos em um ambiente de Testes e estudos, vamos utilizar o SSH para qualquer lugar (não recomendado), o http e o https apenas para o Meu Ip (apenas para estudos), O MySql para qualquer lugar, e o NFS apenas para os recursos que compartilham o mesmo Security group, nesse caso: a Instância e o EFS
+A configuração do Security group irá permitir o acesso SSH apenas para o nosso ip (podemos configurar outra liberação caso haja a necessidade de um Bastion host), o acesso http e https para qualquer IPv4 (isso é necessário para a configuração do Load Balancer posteriormente), o acesso do MySql apenas para o banco de dados que tiver o security group em específico anexado (nesse caso, vamos configurar o security group que criaremos quando formos configurar o RDS), e o NFS apenas para os recursos que compartilham o mesmo Security group, nesse caso: a Instância e o EFS (mais seguro).
+
 
 ## Criando um banco de dados RDS
 
@@ -132,17 +133,24 @@ services:
       - WORDPRESS_DB_PASSWORD=wordpress
       - WORDPRESS_DB_NAME=wordpress
 ```
-Esse código irá baixar a imagem **wordpress**, anexar o volume efs como diretório estático dentro do container wordpress, e definir a porta 80 para expor a nossa aplicação
+Esse código irá baixar a imagem **wordpress**, anexar o volume efs como diretório estático dentro do container wordpress, e definir a porta 80 para expor a nossa aplicação.
+As variaveis de ambiente (environment) permitirão que o wordpress acesse o banco de dados, e para isso, a única coisa que preciamos mudar quando formor configurar esse código, é o **WORDPRESS_DB_HOST**, onde colocaremos o endpoint do RDS criado anteriormente
 
-As variaveis de ambiente (environment) permitirão que o wordpress acesse o banco de dados, e para isso, a única coisa que preciamos mudar quando formos configurar esse código, é o **WORDPRESS_DB_HOST**, onde colocaremos o endpoint do RDS criado anteriormente
+Após criar o arquivo de configuração do docker, vamos executar o seguinte comando:
+```sh
+docker-compose up -d
+```
+Esse comando ira executar o arquivo do docker compose, criando os diretórios **config** e **wp-app** contendo os arquivos de configurações do wordpress dentro do NFS, e criando nossa aplicação.  
 
-Após a instalação, antes de acessarmos via navegador, podemos ir no dbeaver-ce, selecionar **tabelas**, e veremos que agora, há várias tabelas que o wordpress criou dentro do banco de dados MySql
+Após a instalação, podemos ir no dbeaver-ce, selecionar **tabelas**, e veremos que agora, há várias tabelas que o wordpress criou dentro do banco de dados MySql
+
+Uma vez criado, a aplicação do wordpress estará rodando sem interrupções dentro do serviços de EFS. Ou seja, toda instância que tiver o EFS que configuramos montado, poderá ser usado para acessar nossa aplicação, falicitando quando formos trabalhar com o Load Balancer
 
 Depois disso, podemos desconectar dessa instância. 
 
 ## Criando um template
 
-Quando formos trabalhar com Auto scaling, teremos que utilizar uma **instância modelo** para o _scaling out_ (ajusta sua capacidade horizontalmente), ou seja, criando novas instâncias com base no **modelo de execução**
+Quando formos trabalhar com Auto scaling, teremos que utilizar uma **instância modelo** para o _scaling out_ (ajusta sua capacidade horizontalmente), ou seja, criando novas instâncias com base no **modelo de execução**.
 Para isso, primeiro vamos gerar uma **AMI** da instância que acabamos de criar:
 - Selecionar a instância criada
 - Ir em **ações** 
@@ -163,11 +171,11 @@ Após isso, na seção **instâncias**, vamos em _modelo de execução_ e criar 
 
 ## Criando um Load Balancer
 
-Antes de criarmos um Auto scaling, vamos configurar o nosso Load Balancer para prover o balanceamento de carga entre as instâncias
+Antes de criarmos um Auto scaling, vamos configurar o nosso Load Balancer para prover o balanceamento de carga entre as instâncias.
 Para isso, primeiro vamos criar o Target Group:
-- Na seção **Balanceamento de carga** vamos selecionar a opção **Grupos de destinos** e depois Criar Grupos de destinos.
+- Na seção **Balanceamento de carga** nos serviços de EC2, vamos selecionar a opção **Grupos de destinos** e depois **Criar grupos de destinos**.
 - Vamos selecioar "instâncias", criar um nome para o nosso target group (TG-001), o protocolo http na porta 80 deixaremos como padrão, vamos selecionar a vpc criada anteriormente para essa atividade, e então clicaremos em "Proximo"
-- **[IMPORTANTE]**: nesse primeiro momento, não vamos selecionar nenhuma instância como dependência do target group, vamos apenas criá-lo
+- **[IMPORTANTE]**: nesse primeiro momento, não vamos selecionar nenhuma instância como dependência do target group, vamos apenas criá-la
 
 Uma vez criado o Target group, vamos criar o nosso Load Balancer:
 - Ainda na seção **Balanceamento de carga** vamos selecionar a opção **Load Balancers** e depois Criar load balancer.
