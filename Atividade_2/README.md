@@ -194,7 +194,9 @@ Após isso, na seção **instâncias**, vamos em _modelo de execução_ e criar 
 Antes de criarmos um Auto scaling, vamos configurar o nosso Load Balancer para prover o balanceamento de carga entre as instâncias.
 Para isso, primeiro vamos criar o Target Group:
 - Na seção **Balanceamento de carga** nos serviços de EC2, vamos selecionar a opção **Grupos de destinos** e depois **Criar grupos de destinos**.
-- Vamos selecioar "instâncias", criar um nome para o nosso target group (TG-001), o protocolo http na porta 80 deixaremos como padrão, vamos selecionar a vpc criada anteriormente para essa atividade, e então clicaremos em "Proximo"
+- Vamos selecioar "instâncias", criar um nome para o nosso target group (TG-001), o protocolo http na porta 80 deixaremos como padrão e vamos selecionar a vpc criada anteriormente para essa atividade.
+- Para evitar que haja um erro de redirecionamento (302) e faça com que as instâncias fiquem como "unhealthy", em **Verificações de integridade**, vamos colocar no **Caminho da verificação de integridade** o diretório **/wp-content/**. 
+<img src="./images/verificacao.png"/>
 - **[IMPORTANTE]**: nesse primeiro momento, não vamos selecionar nenhuma instância como dependência do target group, vamos apenas criá-la
 
 Uma vez criado o Target group, vamos criar o nosso Load Balancer:
