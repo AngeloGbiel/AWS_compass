@@ -53,7 +53,7 @@ A configuração do Security group irá permitir o acesso SSH apenas para o noss
 
 Como ainda não criamos o Banco de Dados RDS e consequentemente o grupo de segurança, a configuração da regra de saída **MYSQL/Aurora** iremos configurar posteriormente. 
 
-A regra de saída do NFS, por usar o grupo de segurança que estamos criando, não é possivel cria-lo de imediato. Primeiro precisamos criar o grupo de segurança, e depois editar as regras de entrada, atribuindo a regra do tipo NFS para a origem do grupo de segurança em questão.
+A regra de saída do NFS, por usar o grupo de segurança que estamos criando, não é possível criá-lo de imediato. Primeiro precisamos criar o grupo de segurança, e depois editar as regras de entrada, atribuindo a regra do tipo NFS para a origem do grupo de segurança em questão.
 
 ## Criando um banco de dados RDS
 
@@ -61,49 +61,49 @@ Para podermos criar a aplicação wordpress, precisamos de um banco de dados con
 
 Passo-à-Passo:
 - Clicar em Criar banco de dados
-- Selecionar o DB **MySql** e depois selecionar "Nivel gratuito" ou "Free tier"
+- Selecionar o DB **MySql** e depois selecionar "Nível gratuito" ou "Free tier"
 - Em Identificador da instância de banco de dados vamos colocar **wordpress** 
 - Em Nome do usuário principal vamos colocar **root**
 - Como senha principal, também vamos colocar **wordpress** (não recomendado para ambientes de produção)
 - Em Configuração da instância vamos deixar como db.t3.micro (dentro do free tier)
 - Em Armazenamento, vamos deixar o tamanho por padrão e desabilitar o "Habilitar escalabilidade automática do armazenamento"
 - Em Conectividade, vamos selecionar a opção "Não se conectar a um recurso de computação do EC2", escolher a VPC criada anteriormente, o Acesso público vamos deixar como sim (apenas para essa atividade, porém pode haver a necessidade em um ambiente de produção desabilitar o acesso público), e por fim vamos criar um novo grupo de segurança chamado **"RDS_MySql"**
-- Em configurações adcionais, vamos colocar **wordpress** como nome do banco de dados inicial, desabilitar "backups automatizados" e "criptografia".
+- Em configurações adicionais, vamos colocar **wordpress** como nome do banco de dados inicial, desabilitar "backups automatizados" e "criptografia".
 - Após isso, podemos criar nosso banco de dados
 
 O processo de criação pode levar um tempinho.
 Após criado, é importante que anotemos o **Endpoint** do nosso banco de dados, será importante para acessarmos ela
 
-## Configurações adcionais do Security groups
+## Configurações adicionais do Security groups
 
-Agora que criamos o Banco de Dados no RDS, vamos realizar algumas configurações finais nos grupos de segurança criado.
+Agora que criamos o Banco de Dados no RDS, vamos realizar algumas configurações finais nos grupos de segurança criados.
 - Grupo de segurança **RDS_MySql**
-  - Vamos adcionar mais uma regra do tipo MYSQL/Aurora
-  - Em destinos, vamos adcionar o grupo de segurança do Docker_wordpress 
+  - Vamos adicionar mais uma regra do tipo MYSQL/Aurora
+  - Em destinos, vamos adicionar o grupo de segurança do Docker_wordpress 
 - Grupo de segurança **Docker_wordpress**
-  - Vamos adcionar mais uma regra do tipo MYSQL/Aurora
-  - Em destinos, vamos adcionar o grupo de segurança do RDS_MySql (igual na instrução acima)
+  - Vamos adicionar mais uma regra do tipo MYSQL/Aurora
+  - Em destinos, vamos adicionar o grupo de segurança do RDS_MySql (igual na instrução acima)
 
 ## Testando nosso banco de dados
 
-Como colocamos nosso banco de dados para acesso público, podemos testa-lo para saber se está funcionando corretamente, usando programas como o **dbeaver-ce** ou outro de sua preferência.
-Para testar, precisamos criar uma nova conexão, selecionar o MySql, e colocar as informações do banco de dados: o Endpoint em "server host", a porta, o nome do banco de dados, o usuário, e a senha.
+Como colocamos nosso banco de dados para acesso público, podemos testá-lo para saber se está funcionando corretamente, usando programas como o **dbeaver-ce** ou outro de sua preferência.
+Para testar, precisamos criar uma nova conexão, selecionar o MySql, e colocar as informações do banco de dados: o Endpoint em "server host", a porta, o nome do banco de dados, usuário, e a senha.
 
 Vale ressaltar novamente que o RDS foi configurado como público apenas para fins de estudos, mas dependendo de sua aplicação, é mais seguro deixar sem o acesso público
 
 ## Criando a primeira instância
 
-Agora, dentro da console da AWS, vamos criar uma nova instância seguindo os mesmos passos da **Atividade_1**. A diferença, é que vamos anexar o arquivo update.sh no **user_data** em opções avançadas, e, nesse primeiro momento, vamos habilitar a atribuição automática de ipv4 público à intância, para que possamos acessa-lá via ssh sem a necessidade de atribuir um Elastic IP
+Agora, dentro da console da AWS, vamos criar uma nova instância seguindo os mesmos passos da **Atividade_1**. A diferença, é que vamos anexar o arquivo update.sh no **user_data** em opções avançadas, e, nesse primeiro momento, vamos habilitar a atribuição automática de ipv4 público à instância, para que possamos acessá-la via ssh sem a necessidade de atribuir um Elastic IP
 
 ## montagem do EFS
 
-Vamos no serviço de EFS dentro da console da amazon (criada na Atividade_1), e, dessa vez vamos efetuar uma montagem permanente da EC2.
+Vamos no serviço de EFS dentro da console da amazon (criada na Atividade_1), e, dessa vez, vamos efetuar uma montagem permanente da EC2.
 Uma vez conectado a instância, vamos executar o seguinte comando:
 ```sh
 sudo vim /etc/fstab
 ```
-O arquivo **fstab** gerencia como e onde as partições e dispositivos de armazenamento devem ser montados, e vamos usar para montar de forma permanente o EFS da aws.
-Para isso, devemos adcionar a seguinte instrução no arquivo:
+O arquivo **fstab** gerência como e onde as partições e dispositivos de armazenamento devem ser montados, e vamos usar para montar de forma permanente o EFS da aws.
+Para isso, devemos adicionar a seguinte instrução no arquivo:
 ```sh
 <mount-target-DNS:/> <efs-mount-point> nfs4 <options> 0 0
 ```
@@ -146,15 +146,15 @@ services:
       - WORDPRESS_DB_NAME=wordpress
 ```
 Esse código irá baixar a imagem **wordpress**, anexar o volume efs como diretório estático dentro do container wordpress, e definir a porta 80 para expor a nossa aplicação.
-As variaveis de ambiente (environment) permitirão que o wordpress acesse o banco de dados, e para isso, a única coisa que preciamos mudar quando formor configurar esse código, é o **WORDPRESS_DB_HOST**, onde colocaremos o endpoint do RDS criado anteriormente
+As variáveis de ambiente (environment) permitirão que o wordpress acesse o banco de dados, e para isso, a única coisa que precisamos mudar quando formos configurar esse código, é o **WORDPRESS_DB_HOST**, onde colocaremos o endpoint do RDS criado anteriormente
 
 Após criar o arquivo de configuração do docker, vamos executar o seguinte comando:
 ```sh
 docker-compose up -d
 ```
-Esse comando ira executar o arquivo do docker compose, criando os diretórios **config** e **wp-app** contendo os arquivos de configurações do wordpress dentro do NFS, e criando nossa aplicação.  
+Esse comando irá executar o arquivo do docker compose, criando os diretórios **config** e **wp-app** contendo os arquivos de configurações do wordpress dentro do NFS, e criando nossa aplicação.  
 
-Uma vez criado, a aplicação do wordpress estará rodando sem interrupções dentro do serviços de EFS. Ou seja, toda instância que tiver o EFS que montado, poderá ser usado para acessar nossa aplicação, falicitando quando formos trabalhar com o Load Balancer (não haverá também a necessidade de executar o comando "docker-compose up" toda vez que uma instância nova for criada)
+Uma vez criado, a aplicação do wordpress estará rodando sem interrupções dentro do serviços de EFS. Ou seja, toda instância que tiver o EFS que montado, poderá ser usado para acessar nossa aplicação, facilitando quando formos trabalhar com o Load Balancer (não haverá também a necessidade de executar o comando "docker-compose up" toda vez que uma instância nova for criada)
 
 A flag -d é usada para iniciar os serviços definidos no arquivo docker-compose.yml em segundo plano (modo detached). Porém, podemos acessar os logs do nosso container, com o seguinte comando:
 
@@ -178,7 +178,7 @@ Após isso, na seção **instâncias**, vamos em _modelo de execução_ e criar 
 - Atribuir um nome (Wordpress) e uma descrição
 - Em **AMIs**, vamos clicar em "Procurar mais AMIs" e então selecionar a AMI criada anteriormente.
 - Tipo de instância vamos colocar **t2.small**
-- Em pares de chaves, vamos selecionar a Chave que criamos na atividade_1 caso pricisemos realizar um Bastion host
+- Em pares de chaves, vamos selecionar a Chave que criamos na atividade_1 caso precise realizar um Bastion host
 - **[IMPORTANTE]:** Em configurações de rede, vamos selecionar o Grupo de segurança que criamos anteriormente (Docker_wordpress), e em sub-rede, vamos deixar a opção "Não incluir no modelo de execução" (a sub-rede será definida quando formos criar o Auto Scaling).
 - **[IMPORTANTE]:** Em tags de recursos, é importante colocar as mesmas tags que colocamos na instância, para termos acesso na hora de criar um Auto Scaling:
   - **Chave:** Name | **Valor:** PB IFMT - UTFPR | **Tipos de recursos:** anexar instâncias e Volumes
@@ -194,7 +194,7 @@ Após isso, na seção **instâncias**, vamos em _modelo de execução_ e criar 
 Antes de criarmos um Auto scaling, vamos configurar o nosso Load Balancer para prover o balanceamento de carga entre as instâncias.
 Para isso, primeiro vamos criar o Target Group:
 - Na seção **Balanceamento de carga** nos serviços de EC2, vamos selecionar a opção **Grupos de destinos** e depois **Criar grupos de destinos**.
-- Vamos selecioar "instâncias", criar um nome para o nosso target group (TG-001), o protocolo http na porta 80 deixaremos como padrão e vamos selecionar a vpc criada anteriormente para essa atividade.
+- Vamos selecionar "instâncias", criar um nome para o nosso target group (TG-001), o protocolo http na porta 80 deixaremos como padrão e vamos selecionar a vpc criada anteriormente para essa atividade.
 - Para evitar que haja um erro de redirecionamento (302) e faça com que as instâncias fiquem como "unhealthy", em **Verificações de integridade**, vamos colocar no **Caminho da verificação de integridade** o diretório **/wp-content/**. 
 <img src="./images/verificacao.png"/>
 - **[IMPORTANTE]**: nesse primeiro momento, não vamos selecionar nenhuma instância como dependência do target group, vamos apenas criá-la
@@ -218,7 +218,7 @@ Após criar o Load Balancer, vamos criar o Auto Scaling Group para prover o esca
 Para isso, vamos:
 - Ir na seção **Auto Scaling** nos serviços EC2, e clicar em **Grupos Auto Scaling** e depois em **Criar Grupos do Auto Scaling**
 - Vamos atribuir um nome (ASG-001) e selecionar o modelo de execução que criamos anteriormente (Wordpress) 
-- **[IMPORTANTE]:** em rede, vamos selecionar a VPC criada anteriormente, e em **Zonas de disponibilidade e sub-redes** vamos selecionar APENAS as sub-redes privadas, para que as instâncias que forem criadas pelo Auto Scaling a partir do template, sejam criadas sem a possibilidade de serem acessadas públicamente - ou seja, serão instâncias privadas, na qual só teremos acesso via Bastion host ou pelo tráfego do Load Balancer.
+- **[IMPORTANTE]:** em rede, vamos selecionar a VPC criada anteriormente, e em **Zonas de disponibilidade e sub-redes** vamos selecionar APENAS as sub-redes privadas, para que as instâncias que forem criadas pelo Auto Scaling a partir do template, sejam criadas sem a possibilidade de serem acessadas publicamente - ou seja, serão instâncias privadas, na qual só teremos acesso via Bastion host ou pelo tráfego do Load Balancer.
 <img src="./images/private.png"/>
 - Em **Balanceamento de carga**, vamos selecionar a opção **Anexar a um balanceador de carga existente** e selecionar o Target Group que criamos (as instâncias serão criadas e anexadas automaticamente ao Load Balancer), e o restante deixaremos como padrão.
 - Em **Tamanho do grupo**, vamos colocar da seguinte forma:
@@ -226,7 +226,7 @@ Para isso, vamos:
   - Capacidade mínima: 1 
   - Capacidade máxima: 3 
 - Temos a possibilidade de criar uma Políticas de escalabilidade, porém vamos pular essa parte.
-- Podemos adcionar uma notificação pelo SNS e criar etiquetas, porém vamos pular essas etapas também e criar o Auto Scaling
+- Podemos adicionar uma notificação pelo SNS e criar etiquetas, porém vamos pular essas etapas também e criar o Auto Scaling
 
 Após criado, duas instâncias serão criadas, ambas em uma sub-rede privada. Após a criação, o Target Group irá verificar se as instâncias estão rodando conforme o esperado. Caso esteja, os status das instâncias serão healthy e o Load balancer estará pronto para ser usado.
 <img src="./images/targetGroup.png"/>
@@ -239,7 +239,7 @@ Para acessarmos nossa aplicação, vamos no Load Balancer que criamos, e copiar 
 
 Uma vez acessado, teremos a tela de idiomas, no qual escolheremos _inglês_. 
 
-Ao prosseguir, seremos incaminhado para a tela de boas vindas, na qual precisamos efetuar a instalação do wordpress. Para isso, colocaremos "wordpress" em todos os campos disponíveis (porém isso não é obrigatório) e então deremos continuidade a instalação.
+Ao prosseguir, seremos encaminhados para a tela de boas vindas, na qual precisamos efetuar a instalação do wordpress. Para isso, colocaremos "wordpress" em todos os campos disponíveis (porém isso não é obrigatório) e então daremos continuidade a instalação.
 
 <img src="./images/wordpress.png"/>
 
@@ -257,4 +257,4 @@ Após a instalação do Wordpress, podemos visualizar as tabelas criadas dentro 
 
 <img src="./images/bancoDeDados.png"/>
 
-Lembrando que, para visualiza-lá, precisamos tornar o banco de dados público, porém por questões de segurança, é recomendado reavaliar se há a necessidade de um banco de dados público. Nessa atividade foi criada apenas para melhor visualização, além de apresentar uma ferramenta de gerenciamento de banco de dados.
+Lembrando que, para visualizá-lá, precisamos tornar o banco de dados público, porém por questões de segurança, é recomendado reavaliar se há a necessidade de um banco de dados público. Nessa atividade foi criada apenas para melhor visualização, além de apresentar uma ferramenta de gerência mento de banco de dados.
