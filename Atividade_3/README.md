@@ -5,6 +5,8 @@ Este projeto documenta o processo de migração de um eCommerc para a nuvem Amaz
 ## Visão Geral
 Nosso projeto consiste na criação de um ambiente hospedado em AWS para e-commerce, utilizando React como servidor web, servidor para conteúdo estático e banco de dados MySQL. Para garantir alta disponibilidade e escalabilidade, implementamos a infraestrutura em Kubernetes. Aqui está uma lista dos principais que eu e meu grupo utilizamos:
 
+<img src="./arquitetura.png"/>
+
 - **Kubernetes**: Para orquestração de contêineres e escalabilidade automática.
 - **Application Load Balancer**: Distribuição de tráfego entre os nodes do Kubernetes.
 - **Route53**: Gerenciamento de DNS para roteamento de tráfego.
